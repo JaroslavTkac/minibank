@@ -1,5 +1,6 @@
 package lt.jaroslav.minibank.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,9 @@ public class TransactionService {
 
     transaction.setDebtorAccount(debtor);
     transaction.setCreditorAccount(creditor);
-    transaction.setStatus(TransactionStatus.PENDING);
+    transaction.setStatus(debtor.getBalance().compareTo(transaction.getAmount()) >= 0
+        ? TransactionStatus.PENDING
+        : TransactionStatus.FAILED);
 
     var savedTransaction = repository.save(transaction);
     return mapper.toResponse(savedTransaction);
