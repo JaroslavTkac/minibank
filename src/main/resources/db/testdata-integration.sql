@@ -1,4 +1,4 @@
--- Reset data for local profile prefill
+-- Reset data for integration-test profile prefill
 DELETE FROM transaction;
 DELETE FROM account;
 

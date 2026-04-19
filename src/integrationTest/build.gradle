@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group = 'lt.jaroslav'
+version = '0.0.1-SNAPSHOT'
+description = 'minibank-integration'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.springframework.boot:spring-boot-dependencies:3.5.13')
+    testImplementation project(':')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
