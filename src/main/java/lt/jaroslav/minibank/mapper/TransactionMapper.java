@@ -12,8 +12,12 @@ public interface TransactionMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "status", ignore = true)
+  @Mapping(target = "debtorAccount", ignore = true)
+  @Mapping(target = "creditorAccount", ignore = true)
   Transaction toEntity(TransactionRequest request);
 
+  @Mapping(target = "debtorAccountId", expression = "java(transaction.getDebtorAccount().getId())")
+  @Mapping(target = "creditorAccountId", expression = "java(transaction.getCreditorAccount().getId())")
   @Mapping(target = "status", expression = "java(transaction.getStatus() != null ? transaction.getStatus().name() : null)")
   TransactionResponse toResponse(Transaction transaction);
 

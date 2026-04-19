@@ -11,6 +11,8 @@ import org.mapstruct.Mapping;
 public interface AccountMapper {
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "outgoingTransactions", ignore = true)
+  @Mapping(target = "incomingTransactions", ignore = true)
   Account toEntity(AccountRequest request);
 
   AccountResponse toResponse(Account account);

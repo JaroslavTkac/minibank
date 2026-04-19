@@ -8,6 +8,7 @@ import lt.jaroslav.minibank.api.controller.model.response.TransactionResponse;
 import lt.jaroslav.minibank.mapper.TransactionMapper;
 import lt.jaroslav.minibank.model.entity.TransactionStatus;
 import lt.jaroslav.minibank.model.exception.NotFoundException;
+import lt.jaroslav.minibank.repository.AccountRepository;
 import lt.jaroslav.minibank.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,22 @@ import org.springframework.stereotype.Service;
 public class TransactionService {
 
   private final TransactionRepository repository;
+  private final AccountRepository accountRepository;
   private final TransactionMapper mapper;
 
   public TransactionResponse transfer(TransactionRequest request) {
     var transaction = mapper.toEntity(request);
-    transaction.setStatus(TransactionStatus.PENDING);
-    repository.save(transaction);
+    var debtor = accountRepository.findById(request.debtorAccountId())
+        .orElseThrow(() -> new NotFoundException("Account not found with id: " + request.debtorAccountId()));
+    var creditor = accountRepository.findById(request.creditorAccountId())
+        .orElseThrow(() -> new NotFoundException("Account not found with id: " + request.creditorAccountId()));
 
-    return mapper.toResponse(transaction);
+    transaction.setDebtorAccount(debtor);
+    transaction.setCreditorAccount(creditor);
+    transaction.setStatus(TransactionStatus.PENDING);
+
+    var savedTransaction = repository.save(transaction);
+    return mapper.toResponse(savedTransaction);
   }
 
   public TransactionResponse getTransaction(Long id) {
