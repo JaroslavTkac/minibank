@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import lt.jaroslav.minibank.api.controller.model.request.AccountRequest;
+import lt.jaroslav.minibank.account.api.model.request.AccountRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
