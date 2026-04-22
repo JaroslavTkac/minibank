@@ -3,9 +3,9 @@ package lt.jaroslav.minibank.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lt.jaroslav.minibank.api.controller.model.request.AccountRequest;
-import lt.jaroslav.minibank.api.controller.model.response.AccountResponse;
 import lt.jaroslav.minibank.mapper.AccountMapper;
+import lt.jaroslav.minibank.model.dto.AccountCreateDto;
+import lt.jaroslav.minibank.model.dto.AccountDto;
 import lt.jaroslav.minibank.model.exception.NotFoundException;
 import lt.jaroslav.minibank.repository.AccountRepository;
 import org.springframework.stereotype.Service;
@@ -18,20 +18,20 @@ public class AccountService {
   private final AccountRepository repository;
   private final AccountMapper mapper;
 
-  public AccountResponse createAccount(AccountRequest request) {
+  public AccountDto createAccount(AccountCreateDto request) {
     var account = mapper.toEntity(request);
-    repository.save(account);
+    var savedAccount = repository.save(account);
 
-    return mapper.toResponse(account);
+    return mapper.toDto(savedAccount);
   }
 
-  public AccountResponse getAccount(Long id) {
+  public AccountDto getAccount(Long id) {
     var account = repository.findById(id)
         .orElseThrow(() -> new NotFoundException("Account not found with id: " + id));
-    return mapper.toResponse(account);
+    return mapper.toDto(account);
   }
 
-  public List<AccountResponse> getAccounts() {
-    return mapper.toResponseList(repository.findAll());
+  public List<AccountDto> getAccounts() {
+    return mapper.toDtoList(repository.findAll());
   }
 }

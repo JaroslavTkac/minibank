@@ -1,16 +1,18 @@
 package lt.jaroslav.minibank.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lt.jaroslav.minibank.api.controller.model.request.TransactionRequest;
-import lt.jaroslav.minibank.api.controller.model.response.TransactionResponse;
+import lt.jaroslav.minibank.event.model.TransactionCreatedEvent;
 import lt.jaroslav.minibank.mapper.TransactionMapper;
+import lt.jaroslav.minibank.model.dto.TransactionDto;
+import lt.jaroslav.minibank.model.dto.TransactionTransferDto;
+import lt.jaroslav.minibank.model.entity.Transaction;
 import lt.jaroslav.minibank.model.entity.TransactionStatus;
 import lt.jaroslav.minibank.model.exception.NotFoundException;
 import lt.jaroslav.minibank.repository.AccountRepository;
 import lt.jaroslav.minibank.repository.TransactionRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -21,8 +23,9 @@ public class TransactionService {
   private final TransactionRepository repository;
   private final AccountRepository accountRepository;
   private final TransactionMapper mapper;
+  private final ApplicationEventPublisher publisher;
 
-  public TransactionResponse transfer(TransactionRequest request) {
+  public TransactionDto transfer(TransactionTransferDto request) {
     var transaction = mapper.toEntity(request);
     var debtor = accountRepository.findById(request.debtorAccountId())
         .orElseThrow(() -> new NotFoundException("Account not found with id: " + request.debtorAccountId()));
@@ -36,16 +39,20 @@ public class TransactionService {
         : TransactionStatus.FAILED);
 
     var savedTransaction = repository.save(transaction);
-    return mapper.toResponse(savedTransaction);
+    publisher.publishEvent(new TransactionCreatedEvent(this, savedTransaction.getId()));
+    return mapper.toDto(savedTransaction);
   }
 
-  public TransactionResponse getTransaction(Long id) {
-    var transaction = repository.findById(id)
+  public TransactionDto getTransaction(Long id) {
+    return mapper.toDto(getTransactionById(id));
+  }
+
+  public Transaction getTransactionById(long id) {
+    return repository.findById(id)
         .orElseThrow(() -> new NotFoundException("Transaction not found with id: " + id));
-    return mapper.toResponse(transaction);
   }
 
-  public List<TransactionResponse> getTransactions() {
-    return mapper.toResponseList(repository.findAll());
+  public List<TransactionDto> getTransactions() {
+    return mapper.toDtoList(repository.findAll());
   }
 }

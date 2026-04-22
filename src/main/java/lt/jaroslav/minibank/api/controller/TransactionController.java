@@ -2,6 +2,7 @@ package lt.jaroslav.minibank.api.controller;
 
 import java.util.List;
 import jakarta.validation.Valid;
+import lt.jaroslav.minibank.api.controller.mapper.TransactionApiMapper;
 import lt.jaroslav.minibank.api.controller.model.request.TransactionRequest;
 import lt.jaroslav.minibank.api.controller.model.response.TransactionResponse;
 import lt.jaroslav.minibank.service.TransactionService;
@@ -22,21 +23,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/transactions")
 public class TransactionController {
 
-  private final TransactionService transactionService;
+  private final TransactionService service;
+  private final TransactionApiMapper mapper;
 
   @PostMapping("/transfer")
   @ResponseStatus(HttpStatus.CREATED)
   public TransactionResponse transfer(@RequestBody @Valid TransactionRequest request) {
-    return transactionService.transfer(request);
+    return mapper.toResponse(service.transfer(mapper.toDto(request)));
   }
 
   @GetMapping("/{id}")
   public TransactionResponse getTransaction(@PathVariable Long id) {
-    return transactionService.getTransaction(id);
+    return mapper.toResponse(service.getTransaction(id));
   }
 
   @GetMapping
   public List<TransactionResponse> getTransactions() {
-    return transactionService.getTransactions();
+    return mapper.toResponseList(service.getTransactions());
   }
 }

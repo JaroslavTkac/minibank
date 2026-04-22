@@ -2,6 +2,7 @@ package lt.jaroslav.minibank.api.controller;
 
 import java.util.List;
 import jakarta.validation.Valid;
+import lt.jaroslav.minibank.api.controller.mapper.AccountApiMapper;
 import lt.jaroslav.minibank.api.controller.model.request.AccountRequest;
 import lt.jaroslav.minibank.api.controller.model.response.AccountResponse;
 import lt.jaroslav.minibank.service.AccountService;
@@ -22,21 +23,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/accounts")
 public class AccountController {
 
-  private final AccountService accountService;
+  private final AccountService service;
+  private final AccountApiMapper mapper;
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public AccountResponse createAccount(@RequestBody @Valid AccountRequest request) {
-    return accountService.createAccount(request);
+    return mapper.toResponse(service.createAccount(mapper.toDto(request)));
   }
 
   @GetMapping("/{id}")
   public AccountResponse getAccount(@PathVariable Long id) {
-    return accountService.getAccount(id);
+    return mapper.toResponse(service.getAccount(id));
   }
 
   @GetMapping
   public List<AccountResponse> getAccounts() {
-    return accountService.getAccounts();
+    return mapper.toResponseList(service.getAccounts());
   }
 }
