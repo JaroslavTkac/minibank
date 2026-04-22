@@ -10,5 +10,7 @@ public interface AccountRepositoryPort {
 
   Optional<Account> findById(Long id);
 
+  Optional<Account> findByIdForUpdate(Long id);
+
   List<Account> findAll();
 }

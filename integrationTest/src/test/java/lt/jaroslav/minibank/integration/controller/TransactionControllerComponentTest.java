@@ -10,10 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration")
+@Sql(scripts = "classpath:db/testdata-integration.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class TransactionControllerComponentTest {
 
   @LocalServerPort
@@ -47,7 +49,7 @@ class TransactionControllerComponentTest {
   }
 
   @Test
-  void transferShouldCreateFailedTransactionWhenBalanceIsInsufficient() {
+  void transferShouldCreatePendingTransactionWhenBalanceIsInsufficient() {
     TransactionRequest request = new TransactionRequest(2L, 1L, BigDecimal.valueOf(1500.00));
 
     webTestClient.post()
@@ -56,7 +58,7 @@ class TransactionControllerComponentTest {
         .exchange()
         .expectStatus().isCreated()
         .expectBody()
-        .jsonPath("$.status").isEqualTo("FAILED");
+        .jsonPath("$.status").isEqualTo("PENDING");
   }
 
   @Test

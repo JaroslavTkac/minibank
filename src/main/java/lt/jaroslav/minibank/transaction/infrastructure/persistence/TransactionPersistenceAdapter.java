@@ -3,13 +3,14 @@ package lt.jaroslav.minibank.transaction.infrastructure.persistence;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lt.jaroslav.minibank.notification.application.port.TransactionQueryPort;
 import lt.jaroslav.minibank.transaction.application.port.TransactionRepositoryPort;
 import lt.jaroslav.minibank.transaction.domain.Transaction;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class TransactionPersistenceAdapter implements TransactionRepositoryPort {
+public class TransactionPersistenceAdapter implements TransactionRepositoryPort, TransactionQueryPort {
 
   private final TransactionJpaRepository transactionJpaRepository;
 

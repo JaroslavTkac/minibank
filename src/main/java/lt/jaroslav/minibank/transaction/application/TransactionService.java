@@ -14,6 +14,7 @@ import lt.jaroslav.minibank.transaction.event.model.TransactionCreatedEvent;
 import lt.jaroslav.minibank.transaction.infrastructure.mapper.TransactionMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -25,6 +26,7 @@ public class TransactionService {
   private final TransactionMapper mapper;
   private final ApplicationEventPublisher publisher;
 
+  @Transactional
   public TransactionDto transfer(TransactionTransferDto request) {
     var transaction = mapper.toEntity(request);
     var debtor = accountQueryPort.findById(request.debtorAccountId())
@@ -34,12 +36,16 @@ public class TransactionService {
 
     transaction.setDebtorAccount(debtor);
     transaction.setCreditorAccount(creditor);
-    transaction.setStatus(debtor.getBalance().compareTo(transaction.getAmount()) >= 0
-        ? TransactionStatus.PENDING
-        : TransactionStatus.FAILED);
+    transaction.setStatus(TransactionStatus.PENDING);
 
     var savedTransaction = repository.save(transaction);
-    publisher.publishEvent(new TransactionCreatedEvent(this, savedTransaction.getId()));
+    publisher.publishEvent(new TransactionCreatedEvent(
+        this,
+        savedTransaction.getId(),
+        debtor.getId(),
+        creditor.getId(),
+        savedTransaction.getAmount()
+    ));
     return mapper.toDto(savedTransaction);
   }
 
@@ -50,6 +56,21 @@ public class TransactionService {
   public Transaction getTransactionById(long id) {
     return repository.findById(id)
         .orElseThrow(() -> new NotFoundException("Transaction not found with id: " + id));
+  }
+
+  @Transactional
+  public void markCompleted(long transactionId) {
+    var transaction = getTransactionById(transactionId);
+    transaction.setStatus(TransactionStatus.COMPLETED);
+    repository.save(transaction);
+  }
+
+  @Transactional
+  public void markFailed(long transactionId, String reason) {
+    var transaction = getTransactionById(transactionId);
+    transaction.setStatus(TransactionStatus.FAILED);
+    repository.save(transaction);
+    log.warn("Transaction {} marked as FAILED due to: {}", transactionId, reason);
   }
 
   public List<TransactionDto> getTransactions() {
