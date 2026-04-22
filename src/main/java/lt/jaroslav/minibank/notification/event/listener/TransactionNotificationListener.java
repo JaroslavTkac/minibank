@@ -1,4 +1,4 @@
-package lt.jaroslav.minibank.notification.application.event.listener;
+package lt.jaroslav.minibank.notification.event.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
