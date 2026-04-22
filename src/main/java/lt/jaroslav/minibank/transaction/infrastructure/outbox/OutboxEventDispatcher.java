@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import lt.jaroslav.minibank.transaction.event.model.TransactionCompletedEvent;
 import lt.jaroslav.minibank.transaction.event.model.TransactionCreatedEvent;
 import lt.jaroslav.minibank.transaction.event.model.TransactionFailedEvent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,7 +26,7 @@ public class OutboxEventDispatcher {
   private final ObjectMapper objectMapper;
   private final ApplicationEventPublisher publisher;
 
-  @org.springframework.beans.factory.annotation.Value("${outbox.dispatcher.max-attempts:10}")
+  @Value("${outbox.dispatcher.max-attempts:10}")
   private int maxAttempts;
 
   @Scheduled(fixedDelayString = "${outbox.dispatcher.fixed-delay-ms:1000}")
@@ -40,9 +41,11 @@ public class OutboxEventDispatcher {
         dispatch(event);
         event.setStatus(OutboxEventStatus.PUBLISHED);
         event.setPublishedAt(LocalDateTime.now());
+        outboxEventRepository.save(event);
       } catch (Exception ex) {
         event.setAttempts(event.getAttempts() + 1);
         event.setStatus(OutboxEventStatus.FAILED);
+        outboxEventRepository.save(event);
         log.error("Failed to dispatch outbox event id={} type={}", event.getId(), event.getEventType(), ex);
       }
     }
