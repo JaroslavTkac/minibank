@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class TransactionCreatedEvent extends ApplicationEvent {
 
+  private final long eventId;
   private final long transactionId;
   private final long debtorAccountId;
   private final long creditorAccountId;
@@ -16,12 +17,14 @@ public class TransactionCreatedEvent extends ApplicationEvent {
 
   public TransactionCreatedEvent(
       Object source,
+      long eventId,
       long transactionId,
       long debtorAccountId,
       long creditorAccountId,
       BigDecimal amount
   ) {
     super(source);
+    this.eventId = eventId;
     this.transactionId = transactionId;
     this.debtorAccountId = debtorAccountId;
     this.creditorAccountId = creditorAccountId;

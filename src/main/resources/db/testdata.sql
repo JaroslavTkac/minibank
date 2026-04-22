@@ -1,4 +1,6 @@
 -- Reset data for local profile prefill
+DELETE FROM processed_event;
+DELETE FROM outbox_event;
 DELETE FROM transaction;
 DELETE FROM account;
 
@@ -23,3 +25,5 @@ VALUES (2, 3, 1, 85.25, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'seed', 'seed')
 -- Keep identity generators ahead of seeded IDs
 ALTER TABLE account ALTER COLUMN id RESTART WITH 4;
 ALTER TABLE transaction ALTER COLUMN id RESTART WITH 3;
+ALTER TABLE outbox_event ALTER COLUMN id RESTART WITH 1;
+ALTER TABLE processed_event ALTER COLUMN id RESTART WITH 1;

@@ -10,9 +10,8 @@ import lt.jaroslav.minibank.transaction.application.port.AccountQueryPort;
 import lt.jaroslav.minibank.transaction.application.port.TransactionRepositoryPort;
 import lt.jaroslav.minibank.transaction.domain.Transaction;
 import lt.jaroslav.minibank.transaction.domain.TransactionStatus;
-import lt.jaroslav.minibank.transaction.event.model.TransactionCreatedEvent;
+import lt.jaroslav.minibank.transaction.infrastructure.outbox.TransactionOutboxService;
 import lt.jaroslav.minibank.transaction.infrastructure.mapper.TransactionMapper;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,7 @@ public class TransactionService {
   private final TransactionRepositoryPort repository;
   private final AccountQueryPort accountQueryPort;
   private final TransactionMapper mapper;
-  private final ApplicationEventPublisher publisher;
+  private final TransactionOutboxService transactionOutboxService;
 
   @Transactional
   public TransactionDto transfer(TransactionTransferDto request) {
@@ -39,13 +38,12 @@ public class TransactionService {
     transaction.setStatus(TransactionStatus.PENDING);
 
     var savedTransaction = repository.save(transaction);
-    publisher.publishEvent(new TransactionCreatedEvent(
-        this,
+    transactionOutboxService.enqueueTransactionCreated(
         savedTransaction.getId(),
         debtor.getId(),
         creditor.getId(),
         savedTransaction.getAmount()
-    ));
+    );
     return mapper.toDto(savedTransaction);
   }
 

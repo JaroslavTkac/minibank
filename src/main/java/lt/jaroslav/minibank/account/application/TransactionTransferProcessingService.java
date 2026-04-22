@@ -3,10 +3,9 @@ package lt.jaroslav.minibank.account.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lt.jaroslav.minibank.account.application.port.AccountRepositoryPort;
-import lt.jaroslav.minibank.transaction.event.model.TransactionCompletedEvent;
+import lt.jaroslav.minibank.shared.infrastructure.inbox.ProcessedEventService;
 import lt.jaroslav.minibank.transaction.event.model.TransactionCreatedEvent;
-import lt.jaroslav.minibank.transaction.event.model.TransactionFailedEvent;
-import org.springframework.context.ApplicationEventPublisher;
+import lt.jaroslav.minibank.transaction.infrastructure.outbox.TransactionOutboxService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +16,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransactionTransferProcessingService {
 
   private final AccountRepositoryPort accountRepository;
-  private final ApplicationEventPublisher publisher;
+  private final ProcessedEventService processedEventService;
+  private final TransactionOutboxService transactionOutboxService;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void process(TransactionCreatedEvent event) {
+    if (!processedEventService.registerIfNew("account-transfer-processing", event.getEventId())) {
+      log.info("Skipping duplicate TransactionCreatedEvent id={} for transaction={}",
+          event.getEventId(), event.getTransactionId());
+      return;
+    }
+
     if (event.getDebtorAccountId() == event.getCreditorAccountId()) {
-      publisher.publishEvent(new TransactionFailedEvent(this, event.getTransactionId(), "Same account transfer"));
+      transactionOutboxService.enqueueTransactionFailed(event.getTransactionId(), "Same account transfer");
       return;
     }
 
@@ -33,7 +39,7 @@ public class TransactionTransferProcessingService {
     var secondAccount = accountRepository.findByIdForUpdate(secondLockId).orElse(null);
 
     if (firstAccount == null || secondAccount == null) {
-      publisher.publishEvent(new TransactionFailedEvent(this, event.getTransactionId(), "Account not found"));
+      transactionOutboxService.enqueueTransactionFailed(event.getTransactionId(), "Account not found");
       return;
     }
 
@@ -41,9 +47,7 @@ public class TransactionTransferProcessingService {
     var creditor = event.getCreditorAccountId() == firstLockId ? firstAccount : secondAccount;
 
     if (debtor.getBalance().compareTo(event.getAmount()) < 0) {
-      publisher.publishEvent(
-          new TransactionFailedEvent(this, event.getTransactionId(), "Insufficient debtor balance")
-      );
+      transactionOutboxService.enqueueTransactionFailed(event.getTransactionId(), "Insufficient debtor balance");
       return;
     }
 
@@ -55,6 +59,6 @@ public class TransactionTransferProcessingService {
 
     log.info("Processed transaction {}: debited account {}, credited account {}, amount {}",
         event.getTransactionId(), debtor.getId(), creditor.getId(), event.getAmount());
-    publisher.publishEvent(new TransactionCompletedEvent(this, event.getTransactionId()));
+    transactionOutboxService.enqueueTransactionCompleted(event.getTransactionId());
   }
 }
