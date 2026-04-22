@@ -19,18 +19,19 @@ public class TransactionNotificationListener {
   @EventListener
   public void handleTransactionCreation(TransactionCreatedEvent event) {
     log.info("Transaction {} has been created.", event.getTransactionId());
-    notificationService.sendNotification(event.getTransactionId());
+    notificationService.sendDebtorNotification(event.getTransactionId());
   }
 
   @EventListener
   public void handleTransactionCompleted(TransactionCompletedEvent event) {
     log.info("Transaction {} has been completed.", event.getTransactionId());
-    notificationService.sendNotification(event.getTransactionId());
+    notificationService.sendDebtorNotification(event.getTransactionId());
+    notificationService.sendCreditorNotification(event.getTransactionId());
   }
 
   @EventListener
-  public void handleTransactionCompleted(TransactionFailedEvent event) {
+  public void handleTransactionFailed(TransactionFailedEvent event) {
     log.info("Transaction {} has been failed.", event.getTransactionId());
-    notificationService.sendNotification(event.getTransactionId());
+    notificationService.sendDebtorNotification(event.getTransactionId());
   }
 }

@@ -13,14 +13,22 @@ public class NotificationService {
 
   private final TransactionQueryPort transactionQueryPort;
 
-  public void sendNotification(long transactionId) {
+  public void sendDebtorNotification(long transactionId) {
+    var debtor = transactionQueryPort.findById(transactionId)
+        .orElseThrow(() -> new NotFoundException("Transaction not found with id: " + transactionId))
+        .getDebtorAccount();
+
+    log.info("Sending fake notification to debtor [{}] identified by id: {}",
+        debtor.getOwnerName(), debtor.getId());
+  }
+
+  public void sendCreditorNotification(long transactionId) {
     var creditor = transactionQueryPort.findById(transactionId)
         .orElseThrow(() -> new NotFoundException("Transaction not found with id: " + transactionId))
         .getCreditorAccount();
 
     log.info("Sending fake notification to creditor [{}] identified by id: {}",
         creditor.getOwnerName(), creditor.getId());
-    // pushing event to customer
   }
 
 }
