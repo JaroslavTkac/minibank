@@ -6,6 +6,7 @@ import java.util.List;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lt.jaroslav.minibank.shared.exception.OutboxEventTypeException;
 import lt.jaroslav.minibank.shared.infrastructure.outbox.payload.OutboxTransactionCompletedPayload;
 import lt.jaroslav.minibank.shared.infrastructure.outbox.payload.OutboxTransactionCreatedPayload;
 import lt.jaroslav.minibank.shared.infrastructure.outbox.payload.OutboxTransactionFailedPayload;
@@ -60,7 +61,7 @@ public class OutboxEventDispatcher {
       case TransactionOutboxService.EVENT_TYPE_TRANSACTION_CREATED -> dispatchTransactionCreated(event);
       case TransactionOutboxService.EVENT_TYPE_TRANSACTION_COMPLETED -> dispatchTransactionCompleted(event);
       case TransactionOutboxService.EVENT_TYPE_TRANSACTION_FAILED -> dispatchTransactionFailed(event);
-      default -> throw new IllegalArgumentException("Unsupported eventType: " + event.getEventType());
+      default -> throw new OutboxEventTypeException("Unsupported eventType: " + event.getEventType());
     }
   }
 

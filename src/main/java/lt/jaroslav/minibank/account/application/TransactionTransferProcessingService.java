@@ -27,11 +27,6 @@ public class TransactionTransferProcessingService {
       return;
     }
 
-    if (event.getDebtorAccountId() == event.getCreditorAccountId()) {
-      transactionOutboxService.enqueueTransactionFailed(event.getTransactionId(), "Same account transfer");
-      return;
-    }
-
     var firstLockId = Math.min(event.getDebtorAccountId(), event.getCreditorAccountId());
     var secondLockId = Math.max(event.getDebtorAccountId(), event.getCreditorAccountId());
 

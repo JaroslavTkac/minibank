@@ -43,6 +43,7 @@ public class Transaction extends BaseEntity {
   private Account creditorAccount;
 
   private BigDecimal amount;
+
   @Enumerated(EnumType.ORDINAL)
   private TransactionStatus status;
 }

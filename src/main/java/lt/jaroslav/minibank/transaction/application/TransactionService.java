@@ -1,9 +1,12 @@
 package lt.jaroslav.minibank.transaction.application;
 
 import java.util.List;
+import java.util.Objects;
+import lt.jaroslav.minibank.shared.exception.InsufficientAmountException;
 import lt.jaroslav.minibank.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lt.jaroslav.minibank.shared.exception.ValidationException;
 import lt.jaroslav.minibank.transaction.application.dto.TransactionDto;
 import lt.jaroslav.minibank.transaction.application.dto.TransactionTransferDto;
 import lt.jaroslav.minibank.transaction.application.port.AccountQueryPort;
@@ -34,6 +37,15 @@ public class TransactionService {
 
     transaction.setDebtorAccount(debtor);
     transaction.setCreditorAccount(creditor);
+
+    if (Objects.equals(request.debtorAccountId(), request.creditorAccountId())) {
+      throw new ValidationException("Same account transfer not supported");
+    }
+
+    if (debtor.getBalance().compareTo(request.amount()) < 0) {
+      throw new InsufficientAmountException("Insufficient debtor balance");
+    }
+
     transaction.setStatus(TransactionStatus.PENDING);
 
     var savedTransaction = repository.save(transaction);

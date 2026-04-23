@@ -3,7 +3,9 @@ package lt.jaroslav.minibank.shared.config;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import lt.jaroslav.minibank.shared.api.model.response.ApiErrorResponse;
+import lt.jaroslav.minibank.shared.exception.InsufficientAmountException;
 import lt.jaroslav.minibank.shared.exception.NotFoundException;
+import lt.jaroslav.minibank.shared.exception.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,8 +19,8 @@ public class GlobalHttpRequestHandler {
     return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
   }
 
-  @ExceptionHandler({ IllegalArgumentException.class, IllegalStateException.class })
-  public ResponseEntity<ApiErrorResponse> handleBadInput(RuntimeException ex, HttpServletRequest request) {
+  @ExceptionHandler({ InsufficientAmountException.class, ValidationException.class })
+  public ResponseEntity<ApiErrorResponse> handleValidation(RuntimeException ex, HttpServletRequest request) {
     return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
   }
 

@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class MinibankApplication {
 
-  static void main(String[] args) {
+  public static void main(String[] args) {
     SpringApplication.run(MinibankApplication.class, args);
   }
 
