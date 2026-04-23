@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lt.jaroslav.minibank.account.application.port.AccountRepositoryPort;
 import lt.jaroslav.minibank.shared.infrastructure.inbox.ProcessedEventService;
 import lt.jaroslav.minibank.transaction.event.model.TransactionCreatedEvent;
-import lt.jaroslav.minibank.transaction.infrastructure.outbox.TransactionOutboxService;
+import lt.jaroslav.minibank.transaction.application.TransactionOutboxService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

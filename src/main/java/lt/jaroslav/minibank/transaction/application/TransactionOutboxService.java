@@ -1,4 +1,4 @@
-package lt.jaroslav.minibank.transaction.infrastructure.outbox;
+package lt.jaroslav.minibank.transaction.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lt.jaroslav.minibank.shared.infrastructure.outbox.OutboxEvent;
+import lt.jaroslav.minibank.shared.infrastructure.outbox.OutboxEventRepository;
 import org.springframework.stereotype.Service;
 
 @Service

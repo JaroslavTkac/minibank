@@ -1,4 +1,4 @@
-package lt.jaroslav.minibank.transaction.infrastructure.outbox;
+package lt.jaroslav.minibank.shared.infrastructure.outbox.payload;
 
 import java.math.BigDecimal;
 

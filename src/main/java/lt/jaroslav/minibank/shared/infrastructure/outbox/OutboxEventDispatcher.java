@@ -1,4 +1,4 @@
-package lt.jaroslav.minibank.transaction.infrastructure.outbox;
+package lt.jaroslav.minibank.shared.infrastructure.outbox;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,9 +6,13 @@ import java.util.List;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lt.jaroslav.minibank.shared.infrastructure.outbox.payload.OutboxTransactionCompletedPayload;
+import lt.jaroslav.minibank.shared.infrastructure.outbox.payload.OutboxTransactionCreatedPayload;
+import lt.jaroslav.minibank.shared.infrastructure.outbox.payload.OutboxTransactionFailedPayload;
 import lt.jaroslav.minibank.transaction.event.model.TransactionCompletedEvent;
 import lt.jaroslav.minibank.transaction.event.model.TransactionCreatedEvent;
 import lt.jaroslav.minibank.transaction.event.model.TransactionFailedEvent;
+import lt.jaroslav.minibank.transaction.application.TransactionOutboxService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;

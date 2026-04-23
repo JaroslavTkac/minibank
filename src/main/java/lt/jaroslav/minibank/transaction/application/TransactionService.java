@@ -10,7 +10,6 @@ import lt.jaroslav.minibank.transaction.application.port.AccountQueryPort;
 import lt.jaroslav.minibank.transaction.application.port.TransactionRepositoryPort;
 import lt.jaroslav.minibank.transaction.domain.Transaction;
 import lt.jaroslav.minibank.transaction.domain.TransactionStatus;
-import lt.jaroslav.minibank.transaction.infrastructure.outbox.TransactionOutboxService;
 import lt.jaroslav.minibank.transaction.infrastructure.mapper.TransactionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
